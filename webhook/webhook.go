@@ -10,14 +10,14 @@ type ResponseStruct struct {
 }
 
 type WebhookRequest struct {
-	AssetId  string `validate:"required,min=3,max=32"`
+	AssetId  string `json:"assetId" validate:"required,min=3,max=32"`
 	Metadata struct {
 		FolderPath               string `validate:"required,clientpath"`
 		Cf_approvalState_client1 string `validate:"required,eq=Approved|eq=Rejected"`
 		Cf_assetType             struct {
 			Value string `validate:"required,eq=Content Image|eq=Product Image"`
 		} `validate:"required,dive"`
-	} `validate:"required,dive"`
+	} `json:"metadata" validate:"required,dive"`
 }
 
 type ErrorResponse struct {

@@ -5,21 +5,7 @@ import (
 	"dam-webhook/webhook"
 	"dam-webhook/probes"
 	"github.com/spf13/viper"
-	"fmt"
 )
-
-func readConfig(){
-	viper.SetConfigName("local")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-
-	viper.SetDefault("server.port", ":3000")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-}
 
 func initServer(){
 	app := fiber.New()
@@ -36,6 +22,6 @@ func setupRoutes(app *fiber.App){
 }
 
 func main() {
-	readConfig()
+	readConfig("local")
 	initServer()
 }
