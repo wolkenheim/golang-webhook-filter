@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"dam-webhook/webhook"
+	"dam-webhook/probes"
 	"github.com/spf13/viper"
 	"fmt"
 )
@@ -10,7 +11,9 @@ import (
 func readConfig(){
 	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")   
+	viper.AddConfigPath("config")
+	
+	viper.SetDefault("server.port", ":3000")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -21,11 +24,12 @@ func readConfig(){
 func initServer(){
 	app := fiber.New()
 	setupRoutes(app)
-	app.Listen(":3000")
+	app.Listen(viper.GetString("server.port"))
 }
 
 func setupRoutes(app *fiber.App){
-	app.Get("/", webhook.HelloWorld)
+	app.Get("/liveness", probes.Liveness)
+	app.Get("/readiness", probes.Readiness)
 	app.Post("/webhook", webhook.CreateWebhook)
 }
 

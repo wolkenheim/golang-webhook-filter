@@ -1,1 +1,3 @@
 clientpath: "clientpathlongerthan40charactergoeshere"
+server:
+  port: ":3000"

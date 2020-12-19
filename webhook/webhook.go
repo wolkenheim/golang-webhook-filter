@@ -4,7 +4,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
-	"fmt"
 )
 
 type ResponseStruct struct {
@@ -27,11 +26,6 @@ type ErrorResponse struct {
 	FailedField string
 	Tag         string
 	Value       string
-}
-
-func HelloWorld(c *fiber.Ctx) error {
-	fmt.Printf("%v", viper.Get("myvar"));
-	return c.Status(200).SendString("Hello world")
 }
 
 func CreateWebhook(c *fiber.Ctx) error {
