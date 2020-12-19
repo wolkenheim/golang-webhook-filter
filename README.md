@@ -8,3 +8,9 @@ curl --location --request POST 'http://localhost:3000/webhook' \
 --header 'Content-Type: application/json' \
 --data-raw '{"AssetId": "87c23cwqDD2111", "metadata": {"folderPath": "/Client/Watanga Group Holding SE & Co. KGaA/my-image-name-jpg", "cf_approvalState_client1": "Approved", "cf_assetType": {"value": "Content Image"}}}'
 ```
+
+## Build local Docker file
+```
+docker run -p 3000:3000 --name dam-webhook dam-webhook-go 
+docker run -p 3000:3000 --name dam-webhook dam-webhook-go 
+```
