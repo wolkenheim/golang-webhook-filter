@@ -13,7 +13,10 @@ func MockApi(c *fiber.Ctx) error {
 		return c.Status(400).JSON(bodyParserError)
 	}
 	
+	fmt.Println("****")
+	fmt.Println("Mock API endpoint received:")
 	fmt.Printf("%v", asset)
+	fmt.Println("\n****")
 
 	return c.JSON(asset)
 }
