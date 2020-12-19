@@ -8,8 +8,13 @@ import (
 	"fmt"
 )
 
+type AssetWithStatus struct {
+	AssetId string
+	Status string
+}
+
 // fire and forget request to external API endpoint
-func postRequest(asset Asset){
+func postRequest(asset AssetWithStatus){
 
 	jsonValue, _ := json.Marshal(asset)
 

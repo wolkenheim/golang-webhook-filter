@@ -1,9 +1,7 @@
 package webhook
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/spf13/viper"
 )
 
 type ResponseStruct struct {
@@ -28,13 +26,6 @@ type ErrorResponse struct {
 	Value       string
 }
 
-type Asset struct {
-	AssetId string
-}
-
-
-
-
 func CreateWebhook(c *fiber.Ctx) error {
 
 	webhookRequest := new(WebhookRequest)
@@ -49,40 +40,12 @@ func CreateWebhook(c *fiber.Ctx) error {
 		return c.Status(400).JSON(validationErrors)
 	}
 
-	asset := Asset{AssetId:webhookRequest.AssetId}
+	asset := AssetWithStatus{
+		AssetId: webhookRequest.AssetId,
+		Status: webhookRequest.Metadata.Cf_approvalState_client1,
+	}
 
 	postRequest(asset)
 
 	return c.JSON(webhookRequest)
-}
-
-func validateStruct(webhookRequest WebhookRequest) []*ErrorResponse {
-	var errors []*ErrorResponse
-	validate := validator.New()
-	validate.RegisterValidation("clientpath", validateClientPath)
-
-	err := validate.Struct(webhookRequest)
-
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element ErrorResponse
-			element.FailedField = err.StructNamespace()
-			element.Tag = err.Tag()
-			element.Value = err.Param()
-			errors = append(errors, &element)
-		}
-	}
-	return errors
-}
-
-func validateClientPath(fl validator.FieldLevel) bool {
-
-	if len(fl.Field().String()) < 40 {
-		return false
-	}
-
-	if fl.Field().String()[0:40] == viper.Get("clientpath") {
-		return true
-	}
-	return false
 }

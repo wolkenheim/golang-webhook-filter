@@ -6,7 +6,7 @@ import (
 )
 
 func MockApi(c *fiber.Ctx) error {
-	asset := new(Asset)
+	asset := new(AssetWithStatus)
 
 	bodyParserError := c.BodyParser(asset)
 	if bodyParserError != nil {
