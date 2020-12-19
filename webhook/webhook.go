@@ -28,6 +28,13 @@ type ErrorResponse struct {
 	Value       string
 }
 
+type Asset struct {
+	AssetId string
+}
+
+
+
+
 func CreateWebhook(c *fiber.Ctx) error {
 
 	webhookRequest := new(WebhookRequest)
@@ -37,18 +44,22 @@ func CreateWebhook(c *fiber.Ctx) error {
 		return c.Status(400).JSON(bodyParserError)
 	}
 
-	validationErrors := ValidateStruct(*webhookRequest)
+	validationErrors := validateStruct(*webhookRequest)
 	if validationErrors != nil {
 		return c.Status(400).JSON(validationErrors)
 	}
 
+	asset := Asset{AssetId:webhookRequest.AssetId}
+
+	postRequest(asset)
+
 	return c.JSON(webhookRequest)
 }
 
-func ValidateStruct(webhookRequest WebhookRequest) []*ErrorResponse {
+func validateStruct(webhookRequest WebhookRequest) []*ErrorResponse {
 	var errors []*ErrorResponse
 	validate := validator.New()
-	validate.RegisterValidation("clientpath", ValidateClientPath)
+	validate.RegisterValidation("clientpath", validateClientPath)
 
 	err := validate.Struct(webhookRequest)
 
@@ -64,7 +75,7 @@ func ValidateStruct(webhookRequest WebhookRequest) []*ErrorResponse {
 	return errors
 }
 
-func ValidateClientPath(fl validator.FieldLevel) bool {
+func validateClientPath(fl validator.FieldLevel) bool {
 
 	if len(fl.Field().String()) < 40 {
 		return false

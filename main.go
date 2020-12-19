@@ -12,7 +12,7 @@ func readConfig(){
 	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("config")
-	
+
 	viper.SetDefault("server.port", ":3000")
 
 	err := viper.ReadInConfig()
@@ -30,7 +30,9 @@ func initServer(){
 func setupRoutes(app *fiber.App){
 	app.Get("/liveness", probes.Liveness)
 	app.Get("/readiness", probes.Readiness)
+
 	app.Post("/webhook", webhook.CreateWebhook)
+	app.Post("/mock-api", webhook.MockApi)
 }
 
 func main() {
