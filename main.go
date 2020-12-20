@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"dam-webhook/webhook"
 	"dam-webhook/probes"
 	"github.com/spf13/viper"
@@ -11,6 +12,7 @@ import (
 
 func initServer(){
 	app := fiber.New()
+	app.Use(logger.New())
 	setupRoutes(app)
 	app.Listen(viper.GetString("server.port"))
 }
