@@ -6,6 +6,7 @@ import (
 	"dam-webhook/probes"
 	"github.com/spf13/viper"
 	"os"
+	"fmt"
 )
 
 func initServer(){
@@ -23,14 +24,15 @@ func setupRoutes(app *fiber.App){
 }
 
 func initConfig(){
-	if os.Getenv("ENV") == "production" {
-		readConfig(os.Getenv("ENV"))
+	fmt.Printf("%v",os.Getenv("APP_ENV")  )
+	if os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging" {
+		readConfig(os.Getenv("APP_ENV") )
 	} else {
 		readConfig("local")
 	}
 }
 
 func main() {
-
+	initConfig()
 	initServer()
 }

@@ -1,0 +1,4 @@
+clientpath: "clientpathlongerthan40charactergoeshere"
+server:
+  port: ":3001"
+api-endpoint: "http://localhost:3001/mock-api"
