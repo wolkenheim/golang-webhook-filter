@@ -13,6 +13,6 @@ curl --location --request POST 'http://localhost:3000/webhook' \
 
 ## Build local Docker file
 ```
-docker build -t dam-webhook-go .
-docker run -p 3001:3000 -e APP_ENV=production --name dam-webhook dam-webhook-go 
+docker build -t dam-webhook-go:latest .
+docker run -p 3000:3001 -e APP_ENV=production dam-webhook-go:latest
 ```
