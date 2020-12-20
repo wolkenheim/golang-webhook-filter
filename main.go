@@ -5,6 +5,7 @@ import (
 	"dam-webhook/webhook"
 	"dam-webhook/probes"
 	"github.com/spf13/viper"
+	"os"
 )
 
 func initServer(){
@@ -21,7 +22,15 @@ func setupRoutes(app *fiber.App){
 	app.Post("/mock-api", webhook.MockApi)
 }
 
+func initConfig(){
+	if os.Getenv("ENV") == "production" {
+		readConfig(os.Getenv("ENV"))
+	} else {
+		readConfig("local")
+	}
+}
+
 func main() {
-	readConfig("local")
+
 	initServer()
 }
