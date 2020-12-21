@@ -13,16 +13,34 @@ import (
 
 func initServer() {
 	app := fiber.New()
-	app.Use(logger.New())
+
 	setupRoutes(app)
+
 	app.Listen(viper.GetString("server.port"))
+}
+
+// ErrorResponse : defines error response
+type ErrorResponse struct {
+	Message string
 }
 
 func setupRoutes(app *fiber.App) {
 	app.Get("/liveness", probes.Liveness)
 	app.Get("/readiness", probes.Readiness)
 
-	app.Post("/webhook", webhook.CreateWebhook)
+	api := app.Group("/webhook", logger.New(), func(c *fiber.Ctx) error {
+		if len(c.Get("X-Hook-Signature")) == 0 {
+
+			return c.Status(400).JSON(ErrorResponse{
+				Message: "Invalid Request",
+			})
+		}
+		return c.Next()
+	})
+
+	api.Post("/", webhook.CreateWebhook)
+
+	// mock route
 	app.Post("/mock-api", webhook.MockAPI)
 }
 
