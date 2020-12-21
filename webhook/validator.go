@@ -26,11 +26,13 @@ func validateStruct(webhookRequest Request) []*ErrorResponse {
 
 func validateClientPath(fl validator.FieldLevel) bool {
 
-	if len(fl.Field().String()) < 40 {
+	cp := viper.GetString("clientpath")
+
+	if len(fl.Field().String()) < len(cp) {
 		return false
 	}
 
-	if fl.Field().String()[0:40] == viper.Get("clientpath") {
+	if fl.Field().String()[0:len(cp)] == cp {
 		return true
 	}
 	return false
