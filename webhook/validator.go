@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func validateStruct(webhookRequest WebhookRequest) []*ErrorResponse {
+func validateStruct(webhookRequest Request) []*ErrorResponse {
 	var errors []*ErrorResponse
 	validate := validator.New()
 	validate.RegisterValidation("clientpath", validateClientPath)

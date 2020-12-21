@@ -1,24 +1,25 @@
 package main
 
 import (
+	"bytes"
+	"dam-webhook/webhook"
 	"io/ioutil"
 	"net/http"
 	"testing"
-	"bytes"
-	"github.com/stretchr/testify/assert"
+
 	"github.com/gofiber/fiber/v2"
-	"dam-webhook/webhook"
+	"github.com/stretchr/testify/assert"
 )
 
 type SingleTestCase struct {
-	description string
-	route string
-	method string
+	description   string
+	route         string
+	method        string
 	expectedError bool
 	expectedCode  int
-	checkBody bool
+	checkBody     bool
 	expectedBody  string
-	jsonValue string
+	jsonValue     string
 }
 
 func TestIndexRoute(t *testing.T) {
@@ -30,22 +31,22 @@ func TestIndexRoute(t *testing.T) {
 		{
 			description:   "hello world test",
 			route:         "/",
-			method: "GET",
+			method:        "GET",
 			expectedError: false,
 			expectedCode:  200,
-			checkBody: true,
+			checkBody:     true,
 			expectedBody:  "hello world",
-			jsonValue: ``,
+			jsonValue:     ``,
 		},
 		{
 			description:   "webhook post",
 			route:         "/webhook",
-			method: "POST",
+			method:        "POST",
 			expectedError: false,
 			expectedCode:  200,
-			checkBody: false,
+			checkBody:     false,
 			expectedBody:  "",
-			jsonValue: `{"assetId": "87c23cwqDD2111", "metadata": {"folderPath": "/Client/XXX Group Holding SE & Co. KGaA/my-image-name-jpg", "cf_approvalState_client1": "Approved", "cf_assetType": {"value": "Content Image"}}}`,
+			jsonValue:     `{"assetId": "87c23cwqDD2111", "metadata": {"folderPath": "/Client/XXX Group Holding SE & Co. KGaA/my-image-name-jpg", "cf_approvalState_client1": "Approved", "cf_assetType": {"value": "Content Image"}}}`,
 		},
 	}
 
@@ -91,7 +92,7 @@ func TestIndexRoute(t *testing.T) {
 		assert.Nilf(t, err, test.description)
 
 		// Verify, that the reponse body equals the expected body
-		if(test.checkBody){
+		if test.checkBody {
 			assert.Equalf(t, test.expectedBody, string(body), test.description)
 		}
 
@@ -104,10 +105,9 @@ func Setup() *fiber.App {
 		return c.SendString("hello world")
 	})
 	app.Post("/webhook", webhook.CreateWebhook)
-	app.Post("/mock-api", webhook.MockApi)
-
+	app.Post("/mock-api", webhook.MockAPI)
 
 	readConfig("testing")
 
-	return app;
+	return app
 }

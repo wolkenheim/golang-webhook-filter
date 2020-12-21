@@ -1,18 +1,20 @@
 package webhook
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"fmt"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func MockApi(c *fiber.Ctx) error {
+// MockAPI : handler for POST mock API route
+func MockAPI(c *fiber.Ctx) error {
 	asset := new(AssetWithStatus)
 
 	bodyParserError := c.BodyParser(asset)
 	if bodyParserError != nil {
 		return c.Status(400).JSON(bodyParserError)
 	}
-	
+
 	fmt.Println("****")
 	fmt.Println("Mock API endpoint received:")
 	fmt.Printf("%v", asset)

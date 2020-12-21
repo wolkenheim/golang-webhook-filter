@@ -1,22 +1,29 @@
 package webhook
 
 import (
-	"net/http"
-	"encoding/json"
-	"github.com/spf13/viper"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http"
+
+	"github.com/spf13/viper"
 )
 
+// AssetWithStatus : defines one exportable entity
 type AssetWithStatus struct {
-	AssetId string
-	Status string
+	AssetID string `json:"assetId"`
+	Status  string `json:"status"`
 }
 
-// fire and forget request to external API endpoint
-func postRequest(asset AssetWithStatus){
+// AssetWithStatusClient : all clients should have this method
+type AssetWithStatusClient interface {
+	send()
+}
 
-	jsonValue, _ := json.Marshal(asset)
+// Send : fire and forget request to external API endpoint
+func (a AssetWithStatus) send() {
+
+	jsonValue, _ := json.Marshal(a)
 
 	_, err := http.Post(viper.GetString("api-endpoint"), "application/json", bytes.NewBuffer(jsonValue))
 

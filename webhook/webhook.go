@@ -4,31 +4,29 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ResponseStruct struct {
-	Message string
-	Status  uint8
-}
-
-type WebhookRequest struct {
-	AssetId  string `json:"assetId" validate:"required,min=3,max=32"`
+// Request : describes JSON post body
+type Request struct {
+	AssetID  string `json:"assetId" validate:"required,min=3,max=32"`
 	Metadata struct {
-		FolderPath               string `validate:"required,clientpath"`
-		Cf_approvalState_client1 string `validate:"required,eq=Approved|eq=Rejected"`
-		Cf_assetType             struct {
-			Value string `validate:"required,eq=Content Image|eq=Product Image"`
-		} `validate:"required,dive"`
+		FolderPath             string `json:"folderPath" validate:"required,clientpath"`
+		CfApprovalStateClient1 string `json:"cf_approvalState_client1" validate:"required,eq=Approved|eq=Rejected"`
+		CfAssetType            struct {
+			Value string `json:"value" validate:"required,eq=Content Image|eq=Product Image"`
+		} `json:"cf_assetType" validate:"required,dive"`
 	} `json:"metadata" validate:"required,dive"`
 }
 
+// ErrorResponse : defines validation error
 type ErrorResponse struct {
 	FailedField string
 	Tag         string
 	Value       string
 }
 
+// CreateWebhook : route handler for post data
 func CreateWebhook(c *fiber.Ctx) error {
 
-	webhookRequest := new(WebhookRequest)
+	webhookRequest := new(Request)
 
 	bodyParserError := c.BodyParser(webhookRequest)
 	if bodyParserError != nil {
@@ -41,11 +39,11 @@ func CreateWebhook(c *fiber.Ctx) error {
 	}
 
 	asset := AssetWithStatus{
-		AssetId: webhookRequest.AssetId,
-		Status: webhookRequest.Metadata.Cf_approvalState_client1,
+		AssetID: webhookRequest.AssetID,
+		Status:  webhookRequest.Metadata.CfApprovalStateClient1,
 	}
 
-	postRequest(asset)
+	asset.send()
 
 	return c.JSON(webhookRequest)
 }
