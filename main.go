@@ -38,7 +38,11 @@ func setupRoutes(app *fiber.App) {
 		return c.Next()
 	})
 
-	api.Post("/", webhook.CreateWebhook)
+	webhookController := &webhook.Controller{
+		AssetClient: &webhook.AssetHTTP{},
+	}
+
+	api.Post("/", webhookController.CreateWebhook)
 
 	// mock route
 	app.Post("/mock-api", webhook.MockAPI)

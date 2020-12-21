@@ -15,15 +15,13 @@ type AssetWithStatus struct {
 	Status  string `json:"status"`
 }
 
-// AssetWithStatusClient : all clients should have this method
-type AssetWithStatusClient interface {
-	send()
-}
+// AssetHTTP : send Asset via http protocol
+type AssetHTTP struct{}
 
 // Send : fire and forget request to external API endpoint
-func (a AssetWithStatus) send() {
+func (a AssetHTTP) Send(asset *AssetWithStatus) {
 
-	jsonValue, _ := json.Marshal(a)
+	jsonValue, _ := json.Marshal(asset)
 
 	_, err := http.Post(viper.GetString("api-endpoint"), "application/json", bytes.NewBuffer(jsonValue))
 

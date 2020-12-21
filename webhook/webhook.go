@@ -23,8 +23,13 @@ type ErrorResponse struct {
 	Value       string
 }
 
+// Controller defines Controller to process webhook
+type Controller struct {
+	AssetClient AssetClient
+}
+
 // CreateWebhook : route handler for post data
-func CreateWebhook(c *fiber.Ctx) error {
+func (con *Controller) CreateWebhook(c *fiber.Ctx) error {
 
 	webhookRequest := new(Request)
 
@@ -43,7 +48,7 @@ func CreateWebhook(c *fiber.Ctx) error {
 		Status:  webhookRequest.Metadata.CfApprovalStateClient1,
 	}
 
-	asset.send()
+	con.AssetClient.Send(&asset)
 
 	return c.JSON(webhookRequest)
 }
