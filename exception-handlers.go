@@ -21,7 +21,6 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 
 func (app *application) clientError(w http.ResponseWriter, e ErrorResponse) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(e.Status)
 	w.Write([]byte(`{"message":"` + e.Message + `"}`))
 	return

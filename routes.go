@@ -64,15 +64,27 @@ func (app *application) routes() *http.ServeMux {
 
 		validationErrors := webhook.ValidateStruct(webhookRequest)
 		if validationErrors != nil {
-			fmt.Printf("%v", validationErrors)
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusBadRequest,
-				Message: "Validation errors occurred!",
-			})
+
+			raw, _ := json.Marshal(validationErrors)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(raw)
 			return
 		}
 
-		fmt.Printf("%v", webhookRequest)
+		asset := webhook.AssetWithStatus{
+			AssetID: webhookRequest.AssetID,
+			Status:  webhookRequest.Metadata.CfApprovalStateClient1,
+		}
+
+		// send asset
+		fmt.Printf("%v", asset)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message": "asset accepted"}`))
+		return
 	})
 
 	return mux
