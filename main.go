@@ -2,24 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"os"
-
-	"github.com/gofiber/fiber/v2"
 
 	"github.com/spf13/viper"
 )
 
-func initServer() {
-	app := fiber.New()
-
-	setupRoutes(app)
-
-	app.Listen(viper.GetString("server.port"))
-}
-
-// ErrorResponse : defines error response
-type ErrorResponse struct {
-	Message string
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
 }
 
 func initConfig() {
@@ -33,5 +25,23 @@ func initConfig() {
 
 func main() {
 	initConfig()
-	initServer()
+	addr := viper.GetString("server.port")
+
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
+	srv := &http.Server{
+		Addr:     addr,
+		ErrorLog: errorLog,
+		Handler:  app.routes(),
+	}
+
+	infoLog.Printf("Starting server on %s", addr)
+	err := srv.ListenAndServe()
+	errorLog.Fatal(err)
 }

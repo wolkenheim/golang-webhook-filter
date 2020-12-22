@@ -1,13 +1,11 @@
 package probes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
-func Liveness(c *fiber.Ctx) error {
-	return c.Status(200).SendString("all good")
-}
-
-func Readiness(c *fiber.Ctx) error {
-	return c.Status(200).SendString("all good")
+func Liveness(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message":"all good"}`))
 }

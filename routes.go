@@ -2,12 +2,19 @@ package main
 
 import (
 	"dam-webhook/probes"
-	"dam-webhook/webhook"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"net/http"
 )
 
+func (app *application) routes() *http.ServeMux {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/liveness", probes.Liveness)
+	mux.HandleFunc("/readiness", probes.Liveness)
+
+	return mux
+}
+
+/*
 func setupRoutes(app *fiber.App) {
 	app.Get("/liveness", probes.Liveness)
 	app.Get("/readiness", probes.Readiness)
@@ -32,3 +39,4 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/mock-api", webhook.MockAPI)
 
 }
+*/
