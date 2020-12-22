@@ -2,6 +2,8 @@ package main
 
 import (
 	"dam-webhook/probes"
+	"dam-webhook/webhook"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -13,15 +15,64 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("/readiness", probes.Liveness)
 
 	mux.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method != http.MethodPost {
+			w.Header().Set("Allow", http.MethodPost)
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusMethodNotAllowed,
+				Message: http.StatusText(http.StatusMethodNotAllowed),
+			})
+			return
+		}
+
 		xHookHeader := r.Header.Get("X-Hook-Signature")
 		if len(xHookHeader) == 0 {
-			app.clientError(w, ErrorResponse{Status: 200, Message: "Invalid request"})
-			// if x hook header is missing, error
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusOK,
+				Message: "Invalid request",
+			})
+			return
 		}
-		fmt.Printf("%v", xHookHeader)
 
-		// if method is not post, error
-		// if body is empty, error
+		contentType := r.Header.Get("Content-Type")
+		if len(contentType) == 0 || contentType != "application/json" {
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusOK,
+				Message: "Invalid request",
+			})
+			return
+		}
+
+		if r.ContentLength < 1 {
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusBadRequest,
+				Message: "Body missing",
+			})
+			return
+		}
+
+		var webhookRequest webhook.Request
+
+		err := json.NewDecoder(r.Body).Decode(&webhookRequest)
+		if err != nil {
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusMethodNotAllowed,
+				Message: http.StatusText(http.StatusMethodNotAllowed),
+			})
+			return
+		}
+
+		validationErrors := webhook.ValidateStruct(webhookRequest)
+		if validationErrors != nil {
+			fmt.Printf("%v", validationErrors)
+			app.clientError(w, ErrorResponse{
+				Status:  http.StatusBadRequest,
+				Message: "Validation errors occurred!",
+			})
+			return
+		}
+
+		fmt.Printf("%v", webhookRequest)
 	})
 
 	return mux

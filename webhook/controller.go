@@ -38,6 +38,31 @@ func (con *Controller) CreateWebhook(c *fiber.Ctx) error {
 		return c.Status(400).JSON(bodyParserError)
 	}
 
+	validationErrors := ValidateStruct(*webhookRequest)
+	if validationErrors != nil {
+		return c.Status(400).JSON(validationErrors)
+	}
+
+	asset := AssetWithStatus{
+		AssetID: webhookRequest.AssetID,
+		Status:  webhookRequest.Metadata.CfApprovalStateClient1,
+	}
+
+	con.AssetClient.Send(&asset)
+
+	return c.JSON(webhookRequest)
+}
+
+/*
+func (con *Controller) CreateWebhook(c *fiber.Ctx) error {
+
+	webhookRequest := new(Request)
+
+	bodyParserError := c.BodyParser(webhookRequest)
+	if bodyParserError != nil {
+		return c.Status(400).JSON(bodyParserError)
+	}
+
 	validationErrors := validateStruct(*webhookRequest)
 	if validationErrors != nil {
 		return c.Status(400).JSON(validationErrors)
@@ -52,3 +77,4 @@ func (con *Controller) CreateWebhook(c *fiber.Ctx) error {
 
 	return c.JSON(webhookRequest)
 }
+*/

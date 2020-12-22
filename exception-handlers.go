@@ -24,6 +24,7 @@ func (app *application) clientError(w http.ResponseWriter, e ErrorResponse) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(e.Status)
 	w.Write([]byte(`{"message":"` + e.Message + `"}`))
+	return
 }
 
 func (app *application) notFound(w http.ResponseWriter) {

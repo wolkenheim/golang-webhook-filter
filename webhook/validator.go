@@ -5,10 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func validateStruct(webhookRequest Request) []*ErrorResponse {
+func ValidateStruct(webhookRequest Request) []*ErrorResponse {
 	var errors []*ErrorResponse
 	validate := validator.New()
-	validate.RegisterValidation("clientpath", validateClientPath)
+	validate.RegisterValidation("clientpath", ValidateClientPath)
 
 	err := validate.Struct(webhookRequest)
 
@@ -24,7 +24,7 @@ func validateStruct(webhookRequest Request) []*ErrorResponse {
 	return errors
 }
 
-func validateClientPath(fl validator.FieldLevel) bool {
+func ValidateClientPath(fl validator.FieldLevel) bool {
 
 	cp := viper.GetString("clientpath")
 
