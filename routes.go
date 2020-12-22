@@ -2,6 +2,7 @@ package main
 
 import (
 	"dam-webhook/probes"
+	"fmt"
 	"net/http"
 )
 
@@ -10,6 +11,18 @@ func (app *application) routes() *http.ServeMux {
 
 	mux.HandleFunc("/liveness", probes.Liveness)
 	mux.HandleFunc("/readiness", probes.Liveness)
+
+	mux.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
+		xHookHeader := r.Header.Get("X-Hook-Signature")
+		if len(xHookHeader) == 0 {
+			app.clientError(w, ErrorResponse{Status: 200, Message: "Invalid request"})
+			// if x hook header is missing, error
+		}
+		fmt.Printf("%v", xHookHeader)
+
+		// if method is not post, error
+		// if body is empty, error
+	})
 
 	return mux
 }
