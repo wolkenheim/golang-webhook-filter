@@ -1,91 +1,24 @@
 package main
 
 import (
+	"dam-webhook/application"
 	"dam-webhook/probes"
 	"dam-webhook/webhook"
-	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-func (app *application) routes() *http.ServeMux {
+func routes(app *application.Application) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/liveness", probes.Liveness)
 	mux.HandleFunc("/readiness", probes.Liveness)
 
-	mux.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
+	webhookController := &webhook.Controller{
+		App:         app,
+		AssetClient: &webhook.AssetHTTP{},
+	}
 
-		if r.Method != http.MethodPost {
-			w.Header().Set("Allow", http.MethodPost)
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusMethodNotAllowed,
-				Message: http.StatusText(http.StatusMethodNotAllowed),
-			})
-			return
-		}
-
-		xHookHeader := r.Header.Get("X-Hook-Signature")
-		if len(xHookHeader) == 0 {
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusOK,
-				Message: "Invalid request",
-			})
-			return
-		}
-
-		contentType := r.Header.Get("Content-Type")
-		if len(contentType) == 0 || contentType != "application/json" {
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusOK,
-				Message: "Invalid request",
-			})
-			return
-		}
-
-		if r.ContentLength < 1 {
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusBadRequest,
-				Message: "Body missing",
-			})
-			return
-		}
-
-		var webhookRequest webhook.Request
-
-		err := json.NewDecoder(r.Body).Decode(&webhookRequest)
-		if err != nil {
-			app.clientError(w, ErrorResponse{
-				Status:  http.StatusMethodNotAllowed,
-				Message: http.StatusText(http.StatusMethodNotAllowed),
-			})
-			return
-		}
-
-		validationErrors := webhook.ValidateStruct(webhookRequest)
-		if validationErrors != nil {
-
-			raw, _ := json.Marshal(validationErrors)
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(raw)
-			return
-		}
-
-		asset := webhook.AssetWithStatus{
-			AssetID: webhookRequest.AssetID,
-			Status:  webhookRequest.Metadata.CfApprovalStateClient1,
-		}
-
-		// send asset
-		fmt.Printf("%v", asset)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message": "asset accepted"}`))
-		return
-	})
+	mux.HandleFunc("/webhook", webhookController.CreateWebhook)
 
 	return mux
 }

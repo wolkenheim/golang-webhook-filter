@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dam-webhook/application"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,11 +9,6 @@ import (
 
 	"github.com/spf13/viper"
 )
-
-type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-}
 
 func initConfig() {
 	fmt.Printf("%v", os.Getenv("APP_ENV"))
@@ -30,18 +26,19 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+	app := &application.Application{
+		ErrorLog: errorLog,
+		InfoLog:  infoLog,
 	}
 
 	srv := &http.Server{
 		Addr:     addr,
 		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Handler:  routes(app),
 	}
 
 	infoLog.Printf("Starting server on %s", addr)
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
+
 }
