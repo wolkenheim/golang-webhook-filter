@@ -3,7 +3,6 @@ package webhook
 import (
 	"dam-webhook/application"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -47,7 +46,7 @@ func (con *Controller) CreateWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contentType := r.Header.Get("Content-Type")
-	if len(contentType) == 0 || contentType != "Application/json" {
+	if len(contentType) == 0 || contentType != "application/json" {
 		con.App.ClientError(w, application.ErrorResponse{
 			Status:  http.StatusOK,
 			Message: "Invalid request",
@@ -84,13 +83,12 @@ func (con *Controller) CreateWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset := AssetWithStatus{
+	asset := &AssetWithStatus{
 		AssetID: webhookRequest.AssetID,
 		Status:  webhookRequest.Metadata.CfApprovalStateClient1,
 	}
 
-	// @todo: send asset
-	fmt.Printf("%v", asset)
+	con.AssetClient.Send(asset)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
